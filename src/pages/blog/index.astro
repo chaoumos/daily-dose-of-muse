@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { format } from 'date-fns';
+const allPosts = await Astro.glob('../../content/blog/*.md');
+const posts = allPosts.filter(post => !post.frontmatter.draft).sort((a, b) => new Date(b.frontmatter.pubDate).valueOf() - new Date(a.frontmatter.pubDate).valueOf());
+---
+<Layout title="Blog - Daily Dose of Muse: Ignite Your Imagination" description="All blog posts from Daily Dose of Muse: Ignite Your Imagination.">
+  <section class="py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl font-bold text-center mb-12 text-slate-800 dark:text-white">Our Blog</h1>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.length === 0 ? (
+          <p class="text-center col-span-full text-slate-500 dark:text-slate-400">No blog posts yet. Check back soon!</p>
+        ) : (
+          posts.map(post => (
+            <article class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl shadow-xl overflow-hidden flex flex-col hover:shadow-2xl transition-shadow duration-300">
+              {post.frontmatter.heroImage && (
+                <a href={post.url} class="block aspect-video overflow-hidden">
+                  <img 
+                    src={post.frontmatter.heroImage} 
+                    alt={post.frontmatter.heroImageAlt || ""} 
+                    class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    data-ai-hint={post.frontmatter.dataAiHint || "blog image"} />
+                </a>
+              )}
+              <div class="p-6 flex flex-col flex-grow">
+                <h2 class="text-2xl font-semibold mb-2">
+                  <a href={post.url} class="hover:text-primary dark:hover:text-primary transition-colors">{post.frontmatter.title}</a>
+                </h2>
+                {post.frontmatter.pubDate && (
+                  <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                    <time datetime={new Date(post.frontmatter.pubDate).toISOString()}>
+                      {format(new Date(post.frontmatter.pubDate), 'MMMM d, yyyy')}
+                    </time>
+                  </p>
+                )}
+                <p class="text-slate-600 dark:text-slate-300 line-clamp-3 mb-4 flex-grow">
+                  {post.frontmatter.description || (post.rawContent ? post.rawContent().substring(0, 150) + '...' : 'Read more...')}
+                </p>
+                <a href={post.url} class="text-primary dark:text-primary hover:underline font-medium self-start mt-auto">Read more &rarr;</a>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </div>
+  </section>
+</Layout>
